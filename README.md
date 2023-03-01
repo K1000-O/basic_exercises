@@ -1,4 +1,4 @@
-# PYTHON EXERCISES
-Simple python exercises
+# PROGAMMING EXERCISES
+Simple progamming exercises
 
-1. Node and binary tree insertion.
+1. PYTHON: Node and binary tree insertion.
