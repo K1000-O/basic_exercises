@@ -10,14 +10,14 @@
         - Guardar el número partidas ganadas de cada equipo mientras la App no se finaliza.
         - Dos botones para reiniciar la partida en marcha y para resetear el contador de victorias y derrotas.
         - Puedes añadirle todas las funcionalidades extra que consideres.
- * @version 0.1.1
+ * @version 0.2.0
  * @date 2023-03-03
  * 
  * @copyright Copyright (c) 2023
  * 
  */
-#include "../includes/types.h"
 #include "../includes/player.h"
+#include "../includes/types.h"
 
 #define WIDTH 7
 #define HEIGHT 6
@@ -36,21 +36,39 @@ typedef struct {
 } Game;
 
 Game * game_create();
+status game_destroy(Game * game);
 status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
-    Bool gameContinue = True; // We decide if we continue with the game or not.
+    int decision = -1;
+    int turno = 1;
 
     Game * game = game_create();
     if (!game) {
         return -1;
     }
 
-    board_print(stdout, game);
-
     do {
-        break;
-    } while(gameContinue);
+        if (decision != -1) {
+            fprintf(stdout, ">> Last decision: %d\n", decision);
+        }
+
+        board_print(stdout, game);
+        fprintf(stdout, "Introduce un número del 1 al 42, donde quieras colocar tu ficha.\nIntroduce '0' para salir.\n");
+        
+        scanf("%d", &decision);
+        if (decision == 0) {break;}
+        if (decision < 1 && decision > 42) {continue;}
+    
+        if ((turno + game->gameNumber) % 2 == 1) {
+            game->board[(decision - 1) / 6][(decision - 1) % 6] = player_getMark(game->player1);
+        } else {
+            game->board[(decision - 1) / 6][(decision - 1) % 6] = player_getMark(game->player2);
+        }
+
+        turno++;
+
+    } while(True);
 
     game_destroy(game);
 
@@ -78,9 +96,10 @@ Game * game_create() {
     /*
         Inicializamos los espacios en vacío.
     */
-    for (int i = 0, cont = 1; i < WIDTH; i++) {
-        for (int j = 0; j < HEIGHT; j++, cont++) {
-            g->board[i][j] = ' ';
+    int cont = 1;
+    for (int i = 0; i < WIDTH; i++) {
+        for (int j = 0; j < HEIGHT; j++) {
+            sprintf(&g->board[i][j], "%d", cont++);
         }
     }
     

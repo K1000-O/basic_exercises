@@ -36,7 +36,7 @@ clean:
 	rm -rf ./obj/*.o
 
 clean_all:
-	rm -rf ./obj/*.o game
+	rm -rf ./obj/*.o ./*.o game
 
 mv_obj:
 	mv *.o ./obj

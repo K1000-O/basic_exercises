@@ -1,3 +1,14 @@
+/**
+ * @file player.c
+ * @author Camilo Jené Conde
+ * @brief File that controls all the functionality given by the player to
+ * the game.
+ * @version 0.0.1
+ * @date 2023-03-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "../includes/player.h"
 
 #define TAM 32
@@ -23,4 +34,16 @@ Player * player_create(int id, char* name, char mark) {
     p->mark = mark;
 
     return p;
+}
+
+status player_destroy(Player * player) {
+    if (player){
+        free(player);
+    }
+
+    return OK;
+}
+
+char player_getMark(Player * player) {
+    return player->mark;
 }
