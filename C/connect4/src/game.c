@@ -37,6 +37,7 @@ typedef struct {
 
 Game * game_create();
 status game_destroy(Game * game);
+Bool game_insertMove(Game * game, int decision, int player);
 status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
@@ -61,25 +62,12 @@ int main(int argv, char** args) {
         if (decision < 1 && decision > WIDTH) {continue;}
     
         if ((turno + game->gameNumber) % 2 == 1) {
-            for (i = HEIGHT-1; i >= 0; i--) {
-                if (game->board[i][decision] != 'X' && game->board[i][decision] != 'O'){
-                    game->board[i][decision] = player_getMark(game->player1);
-                    break;
-                }
-            }
+            if (game_insertMove(game, decision, 1))
+                turno++;
         } else {
-            for (i = HEIGHT-1; i >= 0; i--) {
-                if (game->board[i][decision] != 'X' && game->board[i][decision] != 'O'){
-                    game->board[i][decision] = player_getMark(game->player2);
-                    break;
-                }
-            }
+            if (game_insertMove(game, decision, 2))
+                turno++;
         }
-
-        if (i == -1)
-            break;
-        else
-            turno++;
 
     } while(True);
 
@@ -109,10 +97,9 @@ Game * game_create() {
     /*
         Inicializamos los espacios en vacío.
     */
-    int cont = 1;
-    for (int i = 0; i < WIDTH; i++) {
-        for (int j = 0; j < HEIGHT; j++) {
-            sprintf(&g->board[i][j], "%d", cont++);
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            sprintf(&g->board[i][j], " ");
         }
     }
     
@@ -134,6 +121,21 @@ Bool check_win(char** board) {
     return True;
 }
 
+Bool game_insertMove(Game * game, int decision, int player) {
+    for (int i = HEIGHT-1; i >= 0; i--) {
+        if (game->board[i][decision-1] != 'X' && game->board[i][decision-1] != 'O'){
+            if (player == 1)
+                game->board[i][decision-1] = player_getMark(game->player1);
+            else if (player == 2)
+                game->board[i][decision-1] = player_getMark(game->player2);
+
+            return True;
+        }
+    }
+
+    return False;
+}
+
 status board_print(FILE* pf, Game * game) {
     if (!game->board || !pf) {
         fprintf(stderr, ">> board_print: error on the board data print.");
@@ -143,8 +145,8 @@ status board_print(FILE* pf, Game * game) {
     system("clear");
 
     fprintf(stdout, "## GAME Nº %d ##\n", game->gameNumber);
-    for (int i = 0; i < WIDTH; i++) {
-        for (int j = 0; j < HEIGHT; j++) {
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
             fprintf(pf, "[%c]", game->board[i][j]);
         }
         fprintf(stdout, "\n");
