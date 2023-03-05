@@ -42,7 +42,7 @@ status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
     int decision = -1;
-    int turno = 1, i = -1;
+    int turno = 1;
 
     Game * game = game_create();
     if (!game) {
@@ -50,11 +50,12 @@ int main(int argv, char** args) {
     }
 
     do {
-        if (decision != -1) {
-            fprintf(stdout, ">> Last decision: %d\n", decision);
-        }
-
         board_print(stdout, game);
+
+        if (decision != -1) {
+            fprintf(stdout, "\n>> Last decision: %d\n\n", decision);
+        }
+    
         fprintf(stdout, "Introduce una columna del 1 al %d, donde quieras colocar tu ficha.\nIntroduce '0' para salir.\n", WIDTH);
         
         scanf("%d", &decision);
