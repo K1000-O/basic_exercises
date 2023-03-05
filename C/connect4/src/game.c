@@ -41,7 +41,7 @@ status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
     int decision = -1;
-    int turno = 1;
+    int turno = 1, i = -1;
 
     Game * game = game_create();
     if (!game) {
@@ -54,19 +54,32 @@ int main(int argv, char** args) {
         }
 
         board_print(stdout, game);
-        fprintf(stdout, "Introduce un número del 1 al 42, donde quieras colocar tu ficha.\nIntroduce '0' para salir.\n");
+        fprintf(stdout, "Introduce una columna del 1 al %d, donde quieras colocar tu ficha.\nIntroduce '0' para salir.\n", WIDTH);
         
         scanf("%d", &decision);
         if (decision == 0) {break;}
-        if (decision < 1 && decision > 42) {continue;}
+        if (decision < 1 && decision > WIDTH) {continue;}
     
         if ((turno + game->gameNumber) % 2 == 1) {
-            game->board[(decision - 1) / 6][(decision - 1) % 6] = player_getMark(game->player1);
+            for (i = HEIGHT-1; i >= 0; i--) {
+                if (game->board[i][decision] != 'X' && game->board[i][decision] != 'O'){
+                    game->board[i][decision] = player_getMark(game->player1);
+                    break;
+                }
+            }
         } else {
-            game->board[(decision - 1) / 6][(decision - 1) % 6] = player_getMark(game->player2);
+            for (i = HEIGHT-1; i >= 0; i--) {
+                if (game->board[i][decision] != 'X' && game->board[i][decision] != 'O'){
+                    game->board[i][decision] = player_getMark(game->player2);
+                    break;
+                }
+            }
         }
 
-        turno++;
+        if (i == -1)
+            break;
+        else
+            turno++;
 
     } while(True);
 
