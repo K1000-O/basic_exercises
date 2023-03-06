@@ -37,12 +37,15 @@ typedef struct {
 
 Game * game_create();
 status game_destroy(Game * game);
+Bool game_iniBoard(Game * game); 
 Bool game_insertMove(Game * game, int decision, int player);
+Bool game_checkWin(Game * game, Player * player, int decision);
 status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
     int decision = -1;
     int turno = 1;
+    int playerTurn = -1;
 
     Game * game = game_create();
     if (!game) {
@@ -55,19 +58,32 @@ int main(int argv, char** args) {
         if (decision != -1) {
             fprintf(stdout, "\n>> Last decision: %d\n\n", decision);
         }
+
+        playerTurn = (turno + game->gameNumber) % 2;
     
+        fprintf(stdout, "Player %d choose:\n", playerTurn+1);
         fprintf(stdout, "Introduce una columna del 1 al %d, donde quieras colocar tu ficha.\nIntroduce '0' para salir.\n", WIDTH);
         
         scanf("%d", &decision);
         if (decision == 0) {break;}
         if (decision < 1 && decision > WIDTH) {continue;}
     
-        if ((turno + game->gameNumber) % 2 == 1) {
-            if (game_insertMove(game, decision, 1))
-                turno++;
+        if (playerTurn == 0) {
+            if (game_insertMove(game, decision, 1)) {
+                if (!game_checkWin(game, game->player1, decision))
+                    turno++;
+                else {
+                    turno = game_restartGame(game);
+                }
+            }
         } else {
-            if (game_insertMove(game, decision, 2))
-                turno++;
+            if (game_insertMove(game, decision, 2)) {
+                if (!game_checkWin(game, game->player2, decision))
+                    turno++;
+                else {
+                    turno = game_restartGame(game);
+                }
+            }
         }
 
     } while(True);
@@ -98,11 +114,7 @@ Game * game_create() {
     /*
         Inicializamos los espacios en vacío.
     */
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            sprintf(&g->board[i][j], " ");
-        }
-    }
+    game_iniBoard(g);
     
     return g;
 }
@@ -118,8 +130,25 @@ status game_destroy(Game * game) {
     return OK;
 }
 
-Bool check_win(char** board) {
+Bool game_iniBoard(Game * game) {
+    if (!game) {
+        return False;
+    }
+
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            sprintf(&game->board[i][j], " ");
+        }
+    }
+
     return True;
+}
+
+status game_restartGame(Game * game) {
+    game->gameNumber++;
+    game_iniBoard(game);
+
+    return OK;
 }
 
 Bool game_insertMove(Game * game, int decision, int player) {
@@ -136,6 +165,75 @@ Bool game_insertMove(Game * game, int decision, int player) {
 
     return False;
 }
+
+Bool game_checkWin(Game * game, Player * player, int decision) {
+    if (!game || !player)
+        return False;
+
+    return True;
+
+    for (int i = HEIGHT-1; i >= 0; i++) {
+        // first case
+        if (game->board[i][decision] == player_getMark(player)) {
+            
+        }
+    }
+    
+    return False;
+}
+
+// Bool check(Game* game, Player * player, int eleccion, int contador) {
+//     switch (eleccion)
+//     {
+//         case 0:/* Arriba a la izquierda */
+//             if (height-1 == -1 || decision-1 == -1)
+//                 break;
+
+//             if (game->board[height-1][decision-1] == player_getMark(player)) {
+//                 contador++;
+//                 if (contador == 4)
+//                     return True;
+//                 else
+//                     check(game, player, height-1, decision-1, contador);
+//             }
+
+//             break;
+        
+//         case 1:/* Arriba */
+//             if (decision-1 == -1)
+//                 break;
+
+//             if (game->board[height-1][decision-1] == player_getMark(player)) {
+//                 contador++;
+//                 if (contador == 4)
+//                     return True;
+//                 else
+//                     check(game, player, height-1, decision-1, contador);
+//             }
+//             break;
+        
+//         case 2:
+//             break;
+        
+//         case 3:
+//             break;
+        
+//         case 4:
+//             break;
+        
+//         case 5:
+//             break;
+        
+//         case 6:
+//             break;
+
+//         case 7:
+//             break;
+        
+//         default:
+//             return False;
+//     }
+// }
 
 status board_print(FILE* pf, Game * game) {
     if (!game->board || !pf) {
