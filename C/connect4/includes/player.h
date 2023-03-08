@@ -36,4 +36,10 @@ status player_destroy(Player * player);
  */
 char player_getMark(Player * player);
 
+char* player_getName(Player * player);
+
+int player_getWins(Player * player);
+
+void player_setWins(Player * player, int wins);
+
 #endif

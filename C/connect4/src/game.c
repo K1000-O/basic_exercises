@@ -37,9 +37,11 @@ typedef struct {
 
 Game * game_create();
 status game_destroy(Game * game);
+status game_restartGame(Game * game);
 Bool game_iniBoard(Game * game); 
 Bool game_insertMove(Game * game, int decision, int player);
 Bool game_checkWin(Game * game, Player * player, int decision);
+Bool check(Game* game, Player * player, int x, int y, int contador, int condicion);
 status board_print(FILE* pf, Game * game);
 
 int main(int argv, char** args) {
@@ -70,17 +72,19 @@ int main(int argv, char** args) {
     
         if (playerTurn == 0) {
             if (game_insertMove(game, decision, 1)) {
-                if (!game_checkWin(game, game->player1, decision))
+                if (!game_checkWin(game, game->player1, decision-1))
                     turno++;
                 else {
+                    player_setWins(game->player1, player_getWins(game->player1)+1);
                     turno = game_restartGame(game);
                 }
             }
         } else {
             if (game_insertMove(game, decision, 2)) {
-                if (!game_checkWin(game, game->player2, decision))
+                if (!game_checkWin(game, game->player2, decision-1))
                     turno++;
                 else {
+                    player_setWins(game->player2, player_getWins(game->player2)+1);
                     turno = game_restartGame(game);
                 }
             }
@@ -167,73 +171,150 @@ Bool game_insertMove(Game * game, int decision, int player) {
 }
 
 Bool game_checkWin(Game * game, Player * player, int decision) {
+    int contador = 0;
     if (!game || !player)
         return False;
 
-    return True;
-
-    for (int i = HEIGHT-1; i >= 0; i++) {
-        // first case
+    for (int i = HEIGHT-1; i >= 0; i--) {
         if (game->board[i][decision] == player_getMark(player)) {
-            
+            for (int j = 0; j < 8; j++) {
+                contador = 1;
+                switch (j) {
+                    case 0:
+                        if (i-1 != -1 && decision-1 > -1) {
+                            if (check(game, player, i-1, decision-1, contador, 0))
+                                return True;
+                            }
+
+                            break;
+
+                    case 1:
+                        if (i-1 != -1) {
+                            if (check(game, player, i-1, decision, contador, 1))
+                                return True;
+                            }
+
+                            break;
+                    
+                    case 2:
+                        if (i-1 != -1 && decision+1 < WIDTH) {
+                            if (check(game, player, i-1, decision+1, contador, 2))
+                                return True;
+                            }
+
+                            break;
+                    
+                    case 3:
+                        if (decision+1 < WIDTH) {
+                            if (check(game, player, i, decision+1, contador, 3))
+                                return True;
+                            }
+
+                            break;
+                    
+                    case 4:
+                        if (i+1 < HEIGHT && decision+1 < WIDTH) {
+                            if (check(game, player, i+1, decision+1, contador, 4))
+                                return True;
+                            }
+
+                            break;
+
+                    case 5:
+                        break; // No hace falta comprobarlo. El algoritmo lo hace de arriba a abajo.
+                    
+                    case 6:
+                        if (i+1 < HEIGHT && decision-1 > -1) {
+                            if (check(game, player, i+1, decision-1, contador, 6))
+                                return True;
+                            }
+
+                            break;
+                    
+                    case 7:
+                        if (decision-1 > -1) {
+                            if (check(game, player, i, decision-1, contador, 7))
+                                return True;
+                            }
+
+                            break;
+                }
+            }
         }
     }
     
     return False;
 }
 
-// Bool check(Game* game, Player * player, int eleccion, int contador) {
-//     switch (eleccion)
-//     {
-//         case 0:/* Arriba a la izquierda */
-//             if (height-1 == -1 || decision-1 == -1)
-//                 break;
+Bool check(Game* game, Player * player, int i, int decision, int contador, int condicion) {
+    if (game->board[i][decision] == player_getMark(player)) contador++;
+    else return False;
 
-//             if (game->board[height-1][decision-1] == player_getMark(player)) {
-//                 contador++;
-//                 if (contador == 4)
-//                     return True;
-//                 else
-//                     check(game, player, height-1, decision-1, contador);
-//             }
+    if (contador == 4) return True;
 
-//             break;
-        
-//         case 1:/* Arriba */
-//             if (decision-1 == -1)
-//                 break;
+    switch (condicion) {
+        case 0:
+            if (i-1 != -1 && decision-1 > -1) {
+                if (check(game, player, i-1, decision-1, contador, 0))
+                    return True;
+            }
 
-//             if (game->board[height-1][decision-1] == player_getMark(player)) {
-//                 contador++;
-//                 if (contador == 4)
-//                     return True;
-//                 else
-//                     check(game, player, height-1, decision-1, contador);
-//             }
-//             break;
-        
-//         case 2:
-//             break;
-        
-//         case 3:
-//             break;
-        
-//         case 4:
-//             break;
-        
-//         case 5:
-//             break;
-        
-//         case 6:
-//             break;
+            break;
 
-//         case 7:
-//             break;
+        case 1:
+            if (i-1 != -1) {
+                if (check(game, player, i-1, decision, contador, 1))
+                    return True;
+            }
+
+            break;
         
-//         default:
-//             return False;
-//     }
-// }
+        case 2:
+            if (i-1 != -1 && decision+1 < WIDTH) {
+                if (check(game, player, i-1, decision+1, contador, 2))
+                    return True;
+            }
+
+            break;
+        
+        case 3:
+            if (decision+1 < WIDTH) {
+                if (check(game, player, i, decision+1, contador, 3))
+                    return True;
+            }
+
+            break;
+        
+        case 4:
+            if (i+1 < HEIGHT && decision+1 < WIDTH) {
+                if (check(game, player, i+1, decision+1, contador, 4))
+                    return True;
+            }
+
+            break;
+
+        case 5:
+            break; // No hace falta comprobarlo. El algoritmo lo hace de arriba a abajo.
+        
+        case 6:
+            if (i+1 < HEIGHT && decision-1 > -1) {
+                if (check(game, player, i+1, decision-1, contador, 6))
+                    return True;
+            }
+
+            break;
+        
+        case 7:
+            if (decision-1 > -1) {
+                if (check(game, player, i, decision-1, contador, 7))
+                    return True;
+            }
+
+            break;
+    }
+
+    return False;
+}
 
 status board_print(FILE* pf, Game * game) {
     if (!game->board || !pf) {
@@ -243,7 +324,11 @@ status board_print(FILE* pf, Game * game) {
 
     system("clear");
 
-    fprintf(stdout, "## GAME Nº %d ##\n", game->gameNumber);
+    fprintf(stdout, "Jugadores\tNombre\tVictorias\n");
+    fprintf(stdout, "1\t%s\t%d\n", player_getName(game->player1), player_getWins(game->player1));
+    fprintf(stdout, "2\t%s\t%d\n", player_getName(game->player2), player_getWins(game->player2));
+
+    fprintf(stdout, "\n## GAME Nº %d ##\n", game->gameNumber);
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             fprintf(pf, "[%c]", game->board[i][j]);

@@ -47,3 +47,15 @@ status player_destroy(Player * player) {
 char player_getMark(Player * player) {
     return player->mark;
 }
+
+char* player_getName(Player * player) {
+    return player->name;
+}
+
+int player_getWins(Player * player) {
+    return player->wins;
+}
+
+void player_setWins(Player * player, int wins) {
+    player->wins = wins;
+}
