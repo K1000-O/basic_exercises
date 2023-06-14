@@ -36,10 +36,28 @@ status player_destroy(Player * player);
  */
 char player_getMark(Player * player);
 
+/**
+ * @brief Getter of the player's name.
+ * 
+ * @param player player to get the name.
+ * @return char* 
+ */
 char* player_getName(Player * player);
 
+/**
+ * @brief Getter of the player's wins.
+ * 
+ * @param player player to get the number of wins.
+ * @return int
+ */
 int player_getWins(Player * player);
 
+/**
+ * @brief Setter of the player wins.
+ * 
+ * @param player player who won.
+ * @param wins number of wins.
+ */
 void player_setWins(Player * player, int wins);
 
 #endif
